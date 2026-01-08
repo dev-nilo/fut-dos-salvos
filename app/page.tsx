@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useId } from "react";
+import Image from "next/image";
+
 import {
   Plus,
   X,
   Upload,
-  Shield,
   Trash2,
   Save,
   User,
@@ -36,39 +37,6 @@ import {
 } from "firebase/firestore";
 
 // --- Firebase Initialization ---
-
-/* ===================================================================================
-  GUIA DE CONFIGURAÇÃO PARA SEU PROJETO (PRODUÇÃO / VERCEL / LOCALHOST)
-  ===================================================================================
-  1. Crie um projeto no Firebase Console (https://console.firebase.google.com).
-  2. Habilite "Authentication" (Sign-in method > Anonymous).
-  3. Crie um "Firestore Database" (Rules: allow read, write: if request.auth != null;).
-  4. Crie um arquivo `.env.local` na raiz do seu projeto Next.js com suas chaves:
-     NEXT_PUBLIC_FIREBASE_API_KEY=...
-     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-     NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-     NEXT_PUBLIC_FIREBASE_APP_ID=...
-
-  5. DESCOMENTE O BLOCO ABAIXO E COMENTE A SEÇÃO "CONFIGURAÇÃO AUTOMÁTICA":
-*/
-
-/*
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
-const appId = 'meu-fut-app-v1'; // Defina um nome para a coleção do seu app
-*/
-
-// ===================================================================================
-// CONFIGURAÇÃO AUTOMÁTICA (SOMENTE PARA ESTE AMBIENTE CANVAS - NÃO COPIE ISTO)
-// ===================================================================================
 // Declaração de variáveis globais injetadas pelo ambiente de teste
 declare const __firebase_config: string;
 declare const __app_id: string;
@@ -88,7 +56,7 @@ const getCanvasConfig = () => {
           appId: "1:1015340809584:web:97f771bb9df23286bae3b5",
           measurementId: "G-CZN3CBZV9H",
         };
-  } catch (e) {
+  } catch {
     return {
       apiKey: "AIzaSyCdgujm12Phca07r8lIkZ-Vu-ShA4_1ebY",
       authDomain: "fut-dos-salvos.firebaseapp.com",
@@ -208,7 +176,7 @@ const processImage = (file: File): Promise<string> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const img = document.createElement("img") as HTMLImageElement;
       img.onload = () => {
         // Define Standard Format: 3:4 Aspect Ratio (Portrait)
         const targetWidth = 300;
@@ -304,12 +272,12 @@ const PlayerCard = ({
     <div
       onClick={() => onToggleSelect(player.id)}
       className={`relative group perspective-1000 w-64 h-96 transition-all duration-300 hover:scale-105 hover:z-10 cursor-pointer ${
-        isSelected ? "ring-4 ring-green-500 rounded-[2rem]" : ""
+        isSelected ? "ring-4 ring-green-500 rounded-t-4xl rounded-b-2xl" : ""
       }`}
     >
       {/* Selection Indicator Overlay */}
       {isSelected && (
-        <div className="absolute -top-3 -left-3 z-50 bg-green-500 text-black p-1 rounded-full shadow-lg animate-in zoom-in duration-200">
+        <div className="absolute \-top-3 -left-3 z-50 bg-green-500 text-black p-1 rounded-full shadow-lg animate-in zoom-in duration-200">
           <CheckCircle2 size={24} fill="white" className="text-green-600" />
         </div>
       )}
@@ -340,39 +308,33 @@ const PlayerCard = ({
 
       {/* Card Container */}
       <div
-        className={`relative w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 ${
+        className={`relative w-full h-full bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 border-2 ${
           isSelected ? "border-green-500" : "border-amber-600/50"
-        } rounded-t-[2rem] rounded-b-xl shadow-2xl overflow-hidden select-none flex flex-col`}
+        } rounded-t-4xl rounded-b-xl shadow-2xl overflow-hidden select-none flex flex-col`}
       >
         {/* Background Patterns */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-200 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-200 via-transparent to-transparent pointer-events-none"></div>
         <div className="absolute top-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
 
         {/* Top Section: Rating, Pos, Image */}
-        <div className="flex h-[55%] relative z-10 p-4">
-          <div className="flex flex-col items-center justify-start pt-4 w-1/4">
+        <div className="flex h-[60%] relative z-10 p-4 gap-4">
+          <div className="flex flex-col items-center justify-start pt-4">
             <span className="text-4xl font-black text-amber-500 tracking-tighter leading-none">
               {player.rating}
             </span>
             <span className="text-lg font-bold text-amber-200/80 tracking-wide mt-1">
               {player.position}
             </span>
-            <div className="w-8 h-px bg-amber-600/50 my-2"></div>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Flag_of_Brazil.svg/640px-Flag_of_Brazil.svg.png"
-              alt="Nation"
-              width={24}
-              height={16}
-              className="w-6 h-4 object-cover shadow-sm opacity-80"
-            />
           </div>
           <div className="w-3/4 flex items-end justify-center relative">
             {player.image ? (
               /* Updated Image CSS for Standard Fit */
-              <img
+              <Image
                 src={player.image}
                 alt={player.name}
-                className="h-full w-full object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] mask-image-gradient"
+                width={200}
+                height={200}
+                className="h-full w-full object-cover drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] mask-image-gradient rounded-4xl"
               />
             ) : (
               <User size={96} className="text-slate-600 mb-4" />
@@ -382,11 +344,11 @@ const PlayerCard = ({
 
         {/* Name Plate */}
         <div className="relative z-20 flex flex-col items-center justify-center -mt-2">
-          <div className="w-[90%] h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>
+          <div className="w-[90%] h-px bg-linear-to-r from-transparent via-amber-500/50 to-transparent"></div>
           <h2 className="text-xl font-black text-amber-100 uppercase tracking-tight py-1 truncate max-w-[90%] text-center font-sans">
             {player.name}
           </h2>
-          <div className="w-[90%] h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent mb-3"></div>
+          <div className="w-[90%] h-px bg-linear-to-r from-transparent via-amber-500/50 to-transparent mb-3"></div>
         </div>
 
         {/* Attributes Grid */}
@@ -416,11 +378,6 @@ const PlayerCard = ({
             <span>{player.attributes.attr6}</span>
           </div>
         </div>
-
-        {/* Bottom Decorative Element */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center opacity-30">
-          <Shield size={64} className="text-amber-900 fill-amber-950/50" />
-        </div>
       </div>
     </div>
   );
@@ -430,9 +387,11 @@ const MiniPlayerRow = ({ player }: { player: Player }) => (
   <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-amber-500/50 transition-colors">
     <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-900 border border-slate-600 shrink-0">
       {player.image ? (
-        <img
+        <Image
           src={player.image}
           alt={player.name}
+          width={40}
+          height={40}
           className="w-full h-full object-cover"
         />
       ) : (
@@ -460,6 +419,7 @@ export default function App() {
 
   // Form State
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [newPlayerId, setNewPlayerId] = useState<string>("");
   const [newName, setNewName] = useState("");
   const [newPosition, setNewPosition] = useState<PlayerPosition>("ST");
   const [newImage, setNewImage] = useState<string | null>(null);
@@ -473,6 +433,7 @@ export default function App() {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const newPlayerIdHook = useId();
 
   // --- Firebase Auth & Data Sync ---
   useEffect(() => {
@@ -544,6 +505,7 @@ export default function App() {
 
   const handleEdit = (player: Player) => {
     setEditingPlayerId(player.id);
+    setNewPlayerId(player.id);
     setNewName(player.name);
     setNewPosition(player.position);
     setNewImage(player.image);
@@ -553,17 +515,15 @@ export default function App() {
 
   const handleOpenNew = () => {
     resetForm();
+    setNewPlayerId(newPlayerIdHook);
     setIsModalOpen(true);
   };
 
   const handleSave = async () => {
     if (!newName || !user) return;
 
-    // If editing, use existing ID, else generate new
-    const idToUse = editingPlayerId || Date.now().toString();
-
     const playerData: Player = {
-      id: idToUse,
+      id: newPlayerId,
       name: newName,
       position: newPosition,
       image: newImage,
@@ -573,7 +533,7 @@ export default function App() {
 
     try {
       await setDoc(
-        doc(db, "artifacts", appId, "users", user.uid, "players", idToUse),
+        doc(db, "artifacts", appId, "users", user.uid, "players", newPlayerId),
         playerData
       );
       resetForm();
@@ -586,6 +546,7 @@ export default function App() {
 
   const resetForm = () => {
     setEditingPlayerId(null);
+    setNewPlayerId("");
     setNewName("");
     setNewPosition("ST");
     setNewImage(null);
@@ -709,7 +670,6 @@ export default function App() {
       <header className="bg-slate-900/50 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="text-amber-500 fill-amber-500/20" />
             <h1 className="text-xl font-bold tracking-tight text-amber-500">
               FUT <span className="text-white">DOS SALVOS</span>
             </h1>
@@ -752,7 +712,6 @@ export default function App() {
       <main className="max-w-7xl mx-auto p-8">
         {players.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-slate-600">
-            <Shield size={64} className="mb-4 opacity-20" />
             <p className="text-xl font-medium">Nenhum jogador encontrado.</p>
             <p className="text-sm opacity-60">
               Suas cartas ficarão salvas aqui.
@@ -962,7 +921,7 @@ export default function App() {
                   className={`bg-slate-900/80 rounded-xl border ${team.borderColor} overflow-hidden flex flex-col shadow-xl`}
                 >
                   <div
-                    className={`bg-gradient-to-r ${team.color} p-4 border-b ${team.borderColor} flex justify-between items-center`}
+                    className={`bg-linear-to-r ${team.color} p-4 border-b ${team.borderColor} flex justify-between items-center`}
                   >
                     <h3 className={`font-black ${team.headerColor} text-lg`}>
                       {team.name}
