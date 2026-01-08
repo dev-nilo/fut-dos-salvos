@@ -94,13 +94,16 @@ type PlayerPosition =
   | "CF"
   | "ST";
 
+// Velocidade, Resistência, Chute, Posicionamento, Defesa, Drible, Passe, Físico
 interface Attributes {
-  attr1: number; // PAC / DIV
-  attr2: number; // SHO / HAN
-  attr3: number; // PAS / KIC
-  attr4: number; // DRI / REF
-  attr5: number; // DEF / SPD
-  attr6: number; // PHY / POS
+  attr1: number; // VEL
+  attr2: number; // RES
+  attr3: number; // CHU
+  attr4: number; // DRI
+  attr5: number; // PAS
+  attr6: number; // DEF
+  attr7: number; // POS
+  attr8: number; // FIS
 }
 
 interface Player {
@@ -122,12 +125,14 @@ interface TeamData {
 }
 
 const OUTFIELD_LABELS = {
-  attr1: "PAC",
-  attr2: "SHO",
-  attr3: "PAS",
+  attr1: "VEL",
+  attr2: "RES",
+  attr3: "CHU",
   attr4: "DRI",
-  attr5: "DEF",
-  attr6: "PHY",
+  attr5: "PAS",
+  attr6: "DEF",
+  attr7: "POS",
+  attr8: "FIS",
 };
 
 const GK_LABELS = {
@@ -137,6 +142,8 @@ const GK_LABELS = {
   attr4: "REF",
   attr5: "SPD",
   attr6: "POS",
+  attr7: "COM",
+  attr8: "REA",
 };
 
 const POSITIONS: PlayerPosition[] = [
@@ -377,6 +384,14 @@ const PlayerCard = ({
             <span className="text-amber-500/80 w-8">{labels.attr6}</span>
             <span>{player.attributes.attr6}</span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-amber-500/80 w-8">{labels.attr7}</span>
+            <span>{player.attributes.attr7}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-amber-500/80 w-8">{labels.attr8}</span>
+            <span>{player.attributes.attr8}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -424,12 +439,14 @@ export default function App() {
   const [newPosition, setNewPosition] = useState<PlayerPosition>("ST");
   const [newImage, setNewImage] = useState<string | null>(null);
   const [attributes, setAttributes] = useState<Attributes>({
-    attr1: 75,
-    attr2: 75,
-    attr3: 75,
-    attr4: 75,
-    attr5: 75,
-    attr6: 75,
+    attr1: 60,
+    attr2: 60,
+    attr3: 60,
+    attr4: 60,
+    attr5: 60,
+    attr6: 60,
+    attr7: 60,
+    attr8: 60,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -551,12 +568,14 @@ export default function App() {
     setNewPosition("ST");
     setNewImage(null);
     setAttributes({
-      attr1: 75,
-      attr2: 75,
-      attr3: 75,
-      attr4: 75,
-      attr5: 75,
-      attr6: 75,
+      attr1: 60,
+      attr2: 60,
+      attr3: 60,
+      attr4: 60,
+      attr5: 60,
+      attr6: 60,
+      attr7: 60,
+      attr8: 60,
     });
   };
 
@@ -861,6 +880,16 @@ export default function App() {
                     label={currentLabels.attr6}
                     value={attributes.attr6}
                     onChange={(v) => setAttributes({ ...attributes, attr6: v })}
+                  />
+                  <StatSlider
+                    label={currentLabels.attr7}
+                    value={attributes.attr7}
+                    onChange={(v) => setAttributes({ ...attributes, attr7: v })}
+                  />
+                  <StatSlider
+                    label={currentLabels.attr8}
+                    value={attributes.attr8}
+                    onChange={(v) => setAttributes({ ...attributes, attr8: v })}
                   />
                 </div>
               </div>
